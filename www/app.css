@@ -1,0 +1,32 @@
+/*Font for whole document*/
+body{
+	font-family: verdana;
+	font-size:10pt;
+}
+/*Header*/
+h1{
+	font-size:19pt;
+}
+h2{
+	font-size:14pt;
+}
+h3,h4,h5,h6{
+	font-size:12pt;
+}
+/*Code chunks*/
+code.r{
+	font-family: verdana;
+	font-size:8pt;
+}
+
+/*Output from code chunks*/
+pre{
+	font-family: verdana;
+	font-size:10t;
+}
+
+/*Output chunks*/
+code{
+	font-family: verdana;
+	font-size:10pt;
+}

@@ -1,0 +1,176 @@
+---
+title: "Stock tracker"
+author: "Sankar"
+date: "June 4, 2017"
+output: slidy_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Share Price tracker application
+The purpose of this application is to analyze the historical price range of 5 important companies(Apple, Google, Microsft,DIA,IBM) which would be used for making decisons.
+
+Select the stock that you want to analyze for historical price from the drop down menu.Also the the time period for which you want to analyze the share price history can be changed by using the date selectors above
+
+The plot on the right side(main panel) would show the price history in a graph and below the graph you can see the following factors in bold
+
+Highest price, Lowest price and Net change
+
+These factors should help you in making a decision on purchasing this share
+
+Also a table is shown below it with detailed data on the share price for the selection
+
+## App code
+
+```{r , echo = TRUE,eval=FALSE,warning=FALSE,message=FALSE}
+library(shiny)
+library(quantmod)
+
+shinyApp(
+ui=fluidPage(
+  # Application title
+  titlePanel("Stock history tracking"),
+
+  
+  sidebarLayout(
+    sidebarPanel(
+       selectInput("select",label="Choose the stock",
+       choices = list("Google", "Microsoft" ,
+                      "Apple" , "DIA" ,"IBM"), selected = "IBM"),
+       dateInput("date1",label="Start Date",value="2007-10-03",min="2007-10-03",max="2017-06-02"),
+       dateInput("date2",label="End Date",value="2017-06-02",min="2007-10-03",max="2017-06-02"),
+       strong(div("Application help documentation:")),br(),
+       div("The below application can be used to understand the stock price history of 5 important stocks - Apple, Google, Microsft,DIA,IBM"),br(),
+       div("Select the stock that you want to analyze for historical price from the drop down menu"),br(),
+       div("Also the the time period for which you want to analyze the share price history can be changed by using the date selectors above"),br(),
+       div("The plot on the right side(main panel) would show the price history in a graph and below the graph you can see the following factors in bold"),br(),
+       div("Highest price, Lowest price and Net change"), br(),
+       div("These factors should help you in making a decision on purchasing this share"),br(),
+       div("Also a table is shown below it with detailed data on the share price for the selection"),br(),
+       div("You can use this data to search using the options provided and make educated decisions"),br(),
+       div("Good Luck")
+        ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+       plotOutput("distPlot"),
+       br(),br(),
+       div( textOutput("text1")),br(),
+       strong(textOutput("text2")),br(),
+       dataTableOutput("dt")
+    )
+  )
+),
+
+server=function(input, output) {
+   
+  output$distPlot <- renderPlot({
+    load("./data.RData")
+    data=if(input$select=="Apple") Apple else if(input$select=="DELL") DELL
+     else if(input$select=="DIA") DIA else if(input$select=="Google") Google
+    else if(input$select=="IBM") IBM else if(input$select=="Microsoft") Microsoft
+    data1=data[paste0(input$date1,"/",input$date2)]
+    low1=min(data1[,4])
+    high1=max(data1[,4])
+    netinc=data1[[nrow(data1),4]]-data1[[1,4]]
+    # Generate a graph on the value chosen
+    chartSeries(data1, theme = chartTheme("white"), 
+                type = "auto", log.scale = FALSE, TA = NULL,name=input$select)
+    output$text1=renderText(paste0("The graph above shows the stock trend of ",input$select," from ",as.character(input$date1)," and ",as.character(input$date2)))
+    output$text2=renderText(paste0("Lowest price: $",low1,"        Highest price:$",high1,"            Net Change:$",netinc))
+    dt1=data.frame(row.names( data.frame(data1)),data1)
+    names(dt1)=c("Date",names(data1))
+    output$dt=renderDataTable(data.frame(row.names( data.frame(data1)),data1))
+  })
+  
+},
+
+options=list(height=500)
+)
+```
+
+
+## Stock price tracker
+
+```{r , echo = FALSE,eval=TRUE,warning=FALSE,message=FALSE}
+library(shiny)
+library(quantmod)
+
+shinyApp(
+ui=fluidPage(
+  # Application title
+  titlePanel("Stock history tracking"),
+
+  
+  sidebarLayout(
+    sidebarPanel(
+       selectInput("select",label="Choose the stock",
+       choices = list("Google", "Microsoft" ,
+                      "Apple" , "DIA" ,"IBM"), selected = "IBM"),
+       dateInput("date1",label="Start Date",value="2007-10-03",min="2007-10-03",max="2017-06-02"),
+       dateInput("date2",label="End Date",value="2017-06-02",min="2007-10-03",max="2017-06-02"),
+       strong(div("Application help documentation:")),br(),
+       div("The below application can be used to understand the stock price history of 5 important stocks - Apple, Google, Microsft,DIA,IBM"),br(),
+       div("Select the stock that you want to analyze for historical price from the drop down menu"),br(),
+       div("Also the the time period for which you want to analyze the share price history can be changed by using the date selectors above"),br(),
+       div("The plot on the right side(main panel) would show the price history in a graph and below the graph you can see the following factors in bold"),br(),
+       div("Highest price, Lowest price and Net change"), br(),
+       div("These factors should help you in making a decision on purchasing this share"),br(),
+       div("Also a table is shown below it with detailed data on the share price for the selection"),br(),
+       div("You can use this data to search using the options provided and make educated decisions"),br(),
+       div("Good Luck")
+        ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+       plotOutput("distPlot"),
+       br(),br(),
+       div( textOutput("text1")),br(),
+       strong(textOutput("text2")),br(),
+       dataTableOutput("dt")
+    )
+  )
+),
+
+server=function(input, output) {
+   
+  output$distPlot <- renderPlot({
+    load("./data.RData")
+    data=if(input$select=="Apple") Apple else if(input$select=="DELL") DELL
+     else if(input$select=="DIA") DIA else if(input$select=="Google") Google
+    else if(input$select=="IBM") IBM else if(input$select=="Microsoft") Microsoft
+    data1=data[paste0(input$date1,"/",input$date2)]
+    low1=min(data1[,4])
+    high1=max(data1[,4])
+    netinc=data1[[nrow(data1),4]]-data1[[1,4]]
+    # Generate a graph on the value chosen
+    chartSeries(data1, theme = chartTheme("white"), 
+                type = "auto", log.scale = FALSE, TA = NULL,name=input$select)
+    output$text1=renderText(paste0("The graph above shows the stock trend of ",input$select," from ",as.character(input$date1)," and ",as.character(input$date2)))
+    output$text2=renderText(paste0("Lowest price: $",low1,"        Highest price:$",high1,"            Net Change:$",netinc))
+    dt1=data.frame(row.names( data.frame(data1)),data1)
+    names(dt1)=c("Date",names(data1))
+    output$dt=renderDataTable(data.frame(row.names( data.frame(data1)),data1))
+  })
+  
+},
+
+options=list(height=500)
+)
+```
+
+
+## Application link and details
+
+ 1. Application can be accessed externally at
+  
+              https://msankar.shinyapps.io/Shinyapp_1/
+  
+ 2. This application was developed using R shiny(coded in UI.R and server.R scripts) and they are available in github at
+  
+  
+ 3. This slidify presentation is done using R slidify and shiny coded is embded inline within the presentation for easy access for users and entire code is copied in a deck for reproduciblity
+
